@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="favicon.ico" type="image/ico">
+
+  <title>Login</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: linear-gradient(135deg, #1e3c72, #53c7d9);
+      margin: 0;
+    }
+    .login-box {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      text-align: center;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background: #1e3c72;
+      color: white;
+      padding: 10px;
+      width: 100%;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #92dbe7;
+    }
+
+    
+    /* 📱 تابلت */
+@media (max-width: 768px) {
+  h1 {
+    font-size: 22px;
+  }
+
+  nav a {
+    font-size: 16px;
+  }
+
+  .progress-container,
+  .global-progress {
+    height: 20px;
+  }
+
+  .progress-bar,
+  .global-progress-bar {
+    font-size: 11px;
+  }
+}
+
+/* 📱 موبايل */
+@media (max-width: 480px) {
+  h1 {
+    font-size: 20px;
+  }
+
+  nav {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  ul {
+    grid-template-columns: 1fr; /* درس واحد في السطر */
+  }
+
+  li a {
+    font-size: 14px;
+    padding: 10px;
+  }
+  </style>
+</head>
+<body>
+  <div class="login-box">
+    <h2>Login</h2>
+    <input type="password" id="password" placeholder="Enter Password">
+    <button onclick="checkPassword()">Login</button>
+  </div>
+
+ 
+       <script>
+    function checkPassword() {
+      const password = document.getElementById("password").value;
+      if (password === "12345") { // غيرها بكلمة السر اللي انت عايزها
+        window.location.href = "Home.html"; // الصفحة الرئيسية بتاعتك
+      } else {
+        alert(" 🤣🤣😂😂 انت مش عارف كلمة السر ولا ايه !");
+      }
+    }
+  </script>
+      
+      
+  
+</body>
+</html>
