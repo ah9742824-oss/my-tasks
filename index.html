@@ -1,0 +1,391 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>📊 مهامي اليومية</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap');
+
+    :root {
+      --blue: #4a90e2;
+      --light-bg: #f3f6fa;
+      --card-bg: #fff;
+      --text: #222;
+      --shadow: rgba(0,0,0,0.1);
+    }
+
+    body.dark {
+      --light-bg: #1f1f1f;
+      --card-bg: #2b2b2b;
+      --text: ##6ceec2;
+      --shadow: rgba(255,255,255,0.1);
+    }
+
+    body {
+      font-family: "Cairo", sans-serif;
+      background: var(--light-bg);
+      color: var(--text);
+      margin: 0;
+      transition: background 0.4s, color 0.4s;
+    }
+
+    header {
+      background: var(--blue);
+      color: white;
+      padding: 15px;
+      text-align: center;
+      font-size: 22px;
+      font-weight: 700;
+      box-shadow: 0 2px 8px var(--shadow);
+      letter-spacing: 1px;
+    }
+
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      background: var(--card-bg);
+      padding: 12px;
+      box-shadow: 0 2px 6px var(--shadow);
+    }
+
+    nav button {
+      background: var(--blue);
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 15px;
+      transition: 0.3s;
+      box-shadow: 0 4px 10px var(--shadow);
+    }
+
+    nav button:hover {
+      transform: scale(1.05);
+      background: #357ABD;
+    }
+
+    .page {
+      display: none;
+      padding: 20px;
+      max-width: 850px;
+      margin: 20px auto;
+      background: var(--card-bg);
+      border-radius: 16px;
+      box-shadow: 0 6px 20px var(--shadow);
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.4s ease;
+    }
+
+    .page.active {
+      display: block;
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .task-input {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    input, select {
+      flex: 1;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 15px;
+      background: #f9fafc;
+    }
+
+    .add-btn {
+      background: var(--blue);
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+      box-shadow: 0 2px 6px var(--shadow);
+    }
+
+    .add-btn:hover {
+      background: #357ABD;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    li {
+      background: #fdfdfd;
+      margin-bottom: 10px;
+      padding: 10px;
+      border-radius: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 6px var(--shadow);
+      transition: 0.3s;
+      word-wrap: break-word;
+    }
+
+    li:hover { transform: translateX(-4px); }
+    li.done { text-decoration: line-through; color: gray; opacity: 0.6; }
+
+    button.delete {
+      background: crimson;
+      color: white;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button.delete:hover { background: rgb(190, 0, 0); }
+
+    canvas {
+      margin-top: 25px;
+      width: 100%;
+      height: 280px;
+    }
+
+    .toggle-dark {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      background: var(--blue);
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 20px;
+      box-shadow: 0 3px 12px var(--shadow);
+      transition: 0.3s;
+      z-index: 1000;
+    }
+
+    .toggle-dark:hover { transform: rotate(20deg); }
+
+    footer {
+      background: var(--card-bg);
+      color: var(--text);
+      text-align: center;
+      padding: 10px;
+      font-size: 14px;
+      border-top: 1px solid #ccc;
+      box-shadow: 0 -2px 10px var(--shadow);
+      margin-top: 30px;
+    }
+
+    .pdf-btn {
+      background: var(--blue);
+      color: #fff;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 8px;
+      margin-top: 15px;
+      cursor: pointer;
+      font-size: 14px;
+      box-shadow: 0 2px 6px var(--shadow);
+      transition: 0.3s;
+    }
+
+    .pdf-btn:hover { background: #357ABD; }
+
+    .category-control {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 600px) {
+      header { font-size: 20px; padding: 12px; }
+      nav button { font-size: 14px; padding: 6px 10px; }
+      input, select { font-size: 14px; }
+      .add-btn { font-size: 14px; padding: 8px 12px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>📅 مهامي اليومية</header>
+
+  <nav>
+    <button onclick="showPage('tasksPage')">📋 المهمات</button>
+    <button onclick="showPage('statsPage')">📈 الإحصائيات العامة</button>
+    <button onclick="showPage('sectionStatsPage')">📊 إحصائيات الأقسام</button>
+    <button onclick="showPage('settingsPage')">⚙️ الإعدادات</button>
+  </nav>
+
+  <!-- صفحة المهام -->
+  <div id="tasksPage" class="page active">
+    <div class="task-input">
+      <input type="text" id="taskInput" placeholder="أضف مهمة جديدة...">
+      <select id="sectionSelect"></select>
+      <button class="add-btn" onclick="addTask()">➕</button>
+    </div>
+
+    <div class="category-control">
+      <input type="text" id="newCategory" placeholder="اسم تصنيف جديد...">
+      <button class="add-btn" onclick="addCategory()">📁 أضف تصنيف</button>
+    </div>
+
+    <ul id="taskList"></ul>
+  </div>
+
+  <!-- صفحة الإحصائيات العامة -->
+  <div id="statsPage" class="page">
+    <h3>📈 المهام المنجزة خلال الأسبوع</h3>
+    <canvas id="lineChart"></canvas>
+    <button class="pdf-btn" onclick="downloadPDF('statsPage', 'إحصائيات_الأسبوع.pdf')">📄 تحميل الإحصائية PDF</button>
+  </div>
+
+  <!-- صفحة إحصائيات الأقسام -->
+  <div id="sectionStatsPage" class="page">
+    <h3>📊 إنجازات كل قسم</h3>
+    <canvas id="barChart"></canvas>
+    <button class="pdf-btn" onclick="downloadPDF('sectionStatsPage', 'إحصائيات_الأقسام.pdf')">📄 تحميل الإحصائية PDF</button>
+  </div>
+
+  <!-- صفحة الإعدادات -->
+  <div id="settingsPage" class="page">
+    <h3>⚙️ الإعدادات</h3>
+    <p style="text-align:center;margin-top:20px;">إصدار 3.5 - تصميم بسيط ومحسن بواسطة أحمد ✨</p>
+  </div>
+
+  <button class="toggle-dark" onclick="toggleDarkMode()">🌙</button>
+
+  <footer>© 2025 جميع الحقوق محفوظة | تطوير: أحمد هاني 💻</footer>
+
+  <script>
+    const { jsPDF } = window.jspdf;
+    const defaultCategories = ["مذاكرة", "تمرين", "شغل", "أخرى"];
+    let categories = JSON.parse(localStorage.getItem("categories")) || [...defaultCategories];
+    let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+    let chartData = JSON.parse(localStorage.getItem("chartData")) || [0,0,0,0,0,0,0];
+    let sectionData = JSON.parse(localStorage.getItem("sectionData")) || {};
+
+    function populateCategories() {
+      const select = document.getElementById("sectionSelect");
+      select.innerHTML = "";
+      categories.forEach(cat => {
+        const opt = document.createElement("option");
+        opt.textContent = cat;
+        select.appendChild(opt);
+      });
+    }
+
+    function addCategory() {
+      const newCat = document.getElementById("newCategory").value.trim();
+      if (!newCat || categories.includes(newCat)) return;
+      categories.push(newCat);
+      localStorage.setItem("categories", JSON.stringify(categories));
+      document.getElementById("newCategory").value = "";
+      populateCategories();
+      alert("✅ تمت إضافة التصنيف بنجاح!");
+    }
+
+    function showPage(id) {
+      document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+      document.getElementById(id).classList.add("active");
+      if (id === "statsPage" || id === "sectionStatsPage") updateCharts();
+    }
+
+    function addTask() {
+      const text = document.getElementById("taskInput").value.trim();
+      const section = document.getElementById("sectionSelect").value;
+      if (!text) return;
+      tasks.push({ text, section, done:false, date:new Date().getDay() });
+      document.getElementById("taskInput").value = "";
+      saveData(); renderTasks();
+    }
+
+    function renderTasks() {
+      const list = document.getElementById("taskList");
+      list.innerHTML = "";
+      tasks.forEach((t,i)=>{
+        const li=document.createElement("li");
+        li.innerHTML=`<span onclick="toggleTask(${i})">${t.text} <small>(${t.section})</small></span>
+                      <button class="delete" onclick="deleteTask(${i})">✖</button>`;
+        if(t.done) li.classList.add("done");
+        list.appendChild(li);
+      });
+    }
+
+    function toggleTask(i){ tasks[i].done=!tasks[i].done; saveData(); renderTasks(); }
+    function deleteTask(i){ tasks.splice(i,1); saveData(); renderTasks(); }
+
+    function saveData(){
+      localStorage.setItem("tasks",JSON.stringify(tasks));
+      updateCharts();
+    }
+
+    const ctx1=document.getElementById("lineChart").getContext("2d");
+    const ctx2=document.getElementById("barChart").getContext("2d");
+
+    const lineChart=new Chart(ctx1,{
+      type:"line",
+      data:{ labels:["الأحد","الاثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"],
+        datasets:[{ label:"عدد المهام المنجزة", data:chartData, borderColor:"#4a90e2", tension:0.3, pointRadius:5, fill:false }]
+      },
+      options:{ scales:{ y:{ beginAtZero:true } } }
+    });
+
+    const barChart=new Chart(ctx2,{
+      type:"bar",
+      data:{ labels:Object.keys(sectionData),
+        datasets:[{ label:"المهام المنجزة حسب القسم", data:Object.values(sectionData),
+          backgroundColor:["#4a90e2","#5cb85c","#f0ad4e","#d9534f"], borderRadius:8 }]
+      },
+      options:{ scales:{ y:{ beginAtZero:true } } }
+    });
+
+    function updateCharts(){
+      chartData=[0,0,0,0,0,0,0];
+      sectionData={};
+      categories.forEach(c=>sectionData[c]=0);
+      tasks.forEach(t=>{
+        if(t.done){ chartData[t.date]++; sectionData[t.section]++; }
+      });
+      lineChart.data.datasets[0].data=chartData;
+      barChart.data.labels=Object.keys(sectionData);
+      barChart.data.datasets[0].data=Object.values(sectionData);
+      lineChart.update(); barChart.update();
+      localStorage.setItem("chartData",JSON.stringify(chartData));
+      localStorage.setItem("sectionData",JSON.stringify(sectionData));
+    }
+
+    function toggleDarkMode(){ document.body.classList.toggle("dark"); }
+
+    async function downloadPDF(pageId, filename){
+      const element = document.getElementById(pageId);
+      const canvas = await html2canvas(element, { scale: 2 });
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF("p", "mm", "a4");
+      const width = pdf.internal.pageSize.getWidth();
+      const height = (canvas.height * width) / canvas.width;
+      pdf.addImage(imgData, "PNG", 0, 0, width, height);
+      pdf.save(filename);
+    }
+
+    populateCategories();
+    renderTasks();
+  </script>
+</body>
+</html>
+
