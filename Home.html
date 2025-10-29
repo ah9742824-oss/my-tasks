@@ -226,12 +226,41 @@
       input, select { font-size: 14px; }
       .add-btn { font-size: 14px; padding: 8px 12px; }
     }
+
+
+
+
+    
+    .link-btn {
+      text-align: center;
+    }
+    .link-btn a {
+      display: inline-block;
+      background: linear-gradient(135deg, #4f46e5, #6366f1);
+      color: white;
+      padding: 5px 5px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-size: 16px;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+    .link-btn a:hover {
+      background: linear-gradient(135deg, #3730a3, #4f46e5);
+    }
   </style>
 </head>
 <body>
 
   <header>📅 مهامي اليومية</header>
 
+
+
+ <div class="link-btn">
+      <a href="https://ah9742824-oss.github.io/my-project/" target="_blank" title="زيارة المشروع">🌐</a>
+    </div>
+
+  
   <nav>
     <button onclick="showPage('tasksPage')">📋 المهمات</button>
     <button onclick="showPage('statsPage')">📈 الإحصائيات العامة</button>
